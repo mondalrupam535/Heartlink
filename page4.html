@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartLink - Your Emotional Insight</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=DM+Sans:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dark-navy: #0a0a1a;
+            --deep-purple: #1a0a2e;
+            --royal-blue: #16213e;
+            --soft-lavender: #d4a5e0;
+            --warm-pink: #ffb6c1;
+            --gentle-blue: #9ec5e8;
+            --cream: #fef9f3;
+            --warm-white: #faf7f2;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, var(--dark-navy) 0%, var(--deep-purple) 50%, var(--royal-blue) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 680px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .insight-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 32px;
+            padding: 64px 48px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .insight-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg,
+                    var(--soft-lavender) 0%,
+                    var(--warm-pink) 50%,
+                    var(--gentle-blue) 100%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+
+            0%,
+            100% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .decorative-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 32px;
+            background: linear-gradient(135deg, var(--soft-lavender), var(--warm-pink));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            animation: breathe 4s ease-in-out infinite;
+            box-shadow: 0 10px 30px rgba(212, 165, 224, 0.3);
+        }
+
+        @keyframes breathe {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 42px;
+            font-weight: 600;
+            color: var(--dark-navy);
+            text-align: center;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .mood-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, rgba(212, 165, 224, 0.2), rgba(255, 182, 193, 0.2));
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--deep-purple);
+            margin: 0 auto 32px;
+            display: block;
+            width: fit-content;
+            border: 1px solid rgba(212, 165, 224, 0.3);
+        }
+
+        .insight-message {
+            font-family: 'Crimson Pro', serif;
+            font-size: 22px;
+            line-height: 1.7;
+            color: #2d2d3a;
+            text-align: center;
+            margin-bottom: 48px;
+            font-weight: 300;
+            max-width: 540px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .actions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 48px;
+        }
+
+        .action-btn {
+            padding: 20px 32px;
+            border: none;
+            border-radius: 16px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .action-btn:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .btn-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-title {
+            font-weight: 600;
+            font-size: 17px;
+        }
+
+        .btn-subtitle {
+            font-size: 13px;
+            opacity: 0.75;
+        }
+
+        .btn-icon {
+            font-size: 24px;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .action-btn:hover .btn-icon {
+            transform: translateX(4px);
+        }
+
+        /* Primary Button - Connect */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--soft-lavender), var(--warm-pink));
+            color: white;
+            box-shadow: 0 8px 24px rgba(212, 165, 224, 0.4);
+        }
+
+        .btn-primary::before {
+            background: linear-gradient(135deg, #e0b5f0, #ffcad4);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 12px 32px rgba(212, 165, 224, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Secondary Button - Guided */
+        .btn-secondary {
+            background: white;
+            color: var(--deep-purple);
+            border: 2px solid rgba(212, 165, 224, 0.3);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-secondary::before {
+            background: linear-gradient(135deg, rgba(212, 165, 224, 0.1), rgba(158, 197, 232, 0.1));
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(212, 165, 224, 0.5);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        /* Tertiary Button - Reflect */
+        .btn-tertiary {
+            background: rgba(158, 197, 232, 0.15);
+            color: var(--royal-blue);
+            border: 1px solid rgba(158, 197, 232, 0.3);
+        }
+
+        .btn-tertiary::before {
+            background: rgba(158, 197, 232, 0.25);
+        }
+
+        .btn-tertiary:hover {
+            border-color: rgba(158, 197, 232, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .insight-card {
+                padding: 48px 32px;
+                border-radius: 24px;
+            }
+
+            .title {
+                font-size: 32px;
+            }
+
+            .insight-message {
+                font-size: 19px;
+            }
+
+            .action-btn {
+                padding: 18px 24px;
+            }
+        }
+
+        /* Floating ambient lights */
+        .ambient-light {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.3;
+            pointer-events: none;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .light-1 {
+            width: 200px;
+            height: 200px;
+            background: var(--soft-lavender);
+            top: -100px;
+            left: -100px;
+        }
+
+        .light-2 {
+            width: 250px;
+            height: 250px;
+            background: var(--warm-pink);
+            bottom: -125px;
+            right: -125px;
+            animation-delay: -4s;
+        }
+
+        .light-3 {
+            width: 180px;
+            height: 180px;
+            background: var(--gentle-blue);
+            top: 50%;
+            right: -90px;
+            animation-delay: -2s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            33% {
+                transform: translate(20px, -20px);
+            }
+
+            66% {
+                transform: translate(-20px, 20px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="container">
+        <div class="insight-card">
+            <div class="ambient-light light-1"></div>
+            <div class="ambient-light light-2"></div>
+            <div class="ambient-light light-3"></div>
+
+            <div class="decorative-icon" id="moodIcon">💜</div>
+
+            <h1 class="title">Your Emotional Insight</h1>
+
+            <div class="mood-badge" id="moodBadge">Based on your check-in</div>
+
+            <p class="insight-message" id="insightMessage">
+                It seems like today was a bit stressful. Taking time to reflect is a healthy step. Remember, you're not
+                alone in this journey.
+            </p>
+
+            <div class="actions-container">
+                <button class="action-btn btn-primary" onclick="handleAction('connect')">
+                    <div class="btn-content">
+                        <span class="btn-title">Connect with Someone</span>
+                        <span class="btn-subtitle">Talk to a listener who understands</span>
+                    </div>
+                    <span class="btn-icon">→</span>
+                </button>
+
+                <button class="action-btn btn-secondary" onclick="handleAction('guided')">
+                    <div class="btn-content">
+                        <span class="btn-title">Start a Guided Conversation</span>
+                        <span class="btn-subtitle">Let us help you explore your feelings</span>
+                    </div>
+                    <span class="btn-icon">→</span>
+                </button>
+
+                <button class="action-btn btn-tertiary" onclick="handleAction('reflect')">
+                    <div class="btn-content">
+                        <span class="btn-title">Reflect Privately</span>
+                        <span class="btn-subtitle">Journal your thoughts in a safe space</span>
+                    </div>
+                    <span class="btn-icon">→</span>
+                </button>
+            </div>
+        </div>
+
+        <p class="footer-note">You're taking care of yourself, and that matters. 💙</p>
+    </div>
+
+    <script>
+        // Particle Network Animation (same as check-in page)
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        });
+
+        const particles = [];
+        const particleCount = 80;
+        const maxDistance = 150;
+        const particleSpeed = 0.3;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * particleSpeed;
+                this.vy = (Math.random() - 0.5) * particleSpeed;
+                this.radius = Math.random() * 2 + 1;
+                this.life = Math.random() * 200 + 100;
+                this.maxLife = this.life;
+                this.decaying = false;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+                if (!this.decaying && Math.random() < 0.002) {
+                    this.decaying = true;
+                }
+
+                if (this.decaying) {
+                    this.life -= 2;
+                }
+            }
+
+            draw() {
+                const opacity = this.life / this.maxLife;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(147, 112, 219, ${opacity * 0.8})`;
+                ctx.fill();
+            }
+
+            isDead() {
+                return this.life <= 0;
+            }
+        }
+
+        function initParticles() {
+            particles.length = 0;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < maxDistance) {
+                        const opacity = (1 - distance / maxDistance) *
+                            Math.min(particles[i].life / particles[i].maxLife,
+                                particles[j].life / particles[j].maxLife);
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(147, 112, 219, ${opacity * 0.3})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+
+                if (particles[i].isDead()) {
+                    particles.splice(i, 1);
+                    particles.push(new Particle());
+                }
+            }
+
+            connectParticles();
+            requestAnimationFrame(animate);
+        }
+
+        initParticles();
+        animate();
+
+        // Auth check
+        fetch('/api/auth/me')
+            .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+            .then(data => { if (!data.user) window.location.href = '/loginpage.html'; })
+            .catch(() => { window.location.href = '/loginpage.html'; });
+
+        // Dynamic content based on mood
+        const moodInsights = {
+            happy: {
+                icon: '✨',
+                message: "Your positive energy is wonderful! It's great to see you feeling happy. This is a perfect time to connect with others and share your joy.",
+                badge: "Feeling joyful today"
+            },
+            calm: {
+                icon: '🌙',
+                message: "There's a peaceful quality to your day. This sense of calm is valuable—it can be a foundation for deeper reflection and meaningful connections.",
+                badge: "In a calm state"
+            },
+            lonely: {
+                icon: '💫',
+                message: "Feeling lonely is a deeply human experience. You're not alone in feeling this way, and reaching out is a brave and important step toward connection.",
+                badge: "Seeking connection"
+            },
+            stressed: {
+                icon: '🌊',
+                message: "It seems like today was a bit stressful. Taking time to reflect is a healthy step. Remember, you're not alone in this journey.",
+                badge: "Processing stress"
+            },
+            overwhelmed: {
+                icon: '🕊️',
+                message: "Feeling overwhelmed can be so difficult. You're showing strength by acknowledging it. Let's explore ways to ease this burden together.",
+                badge: "Feeling overwhelmed"
+            }
+        };
+
+        // Load mood insight from URL param or API
+        async function loadMoodInsight() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let mood = urlParams.get('mood');
+
+            // If no URL param, try to get latest mood from API
+            if (!mood) {
+                try {
+                    const res = await fetch('/api/mood/latest');
+                    if (res.ok) {
+                        const data = await res.json();
+                        mood = data.currentMood || data.dayMood || 'calm';
+                    }
+                } catch (e) { }
+            }
+
+            mood = mood || 'calm';
+            const insight = moodInsights[mood] || moodInsights.calm;
+
+            document.getElementById('moodIcon').textContent = insight.icon;
+            document.getElementById('insightMessage').textContent = insight.message;
+            document.getElementById('moodBadge').textContent = insight.badge;
+        }
+
+        // Button actions — navigate to real pages
+        function handleAction(action) {
+            const routes = {
+                connect: '/page5.html',
+                guided: '/page6.html',
+                reflect: '/page7.html'
+            };
+            window.location.href = routes[action] || '/page5.html';
+        }
+
+        loadMoodInsight();
+    </script>
+</body>
+
+</html>

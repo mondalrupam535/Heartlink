@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartLink - Your Emotional Connection Report</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=DM+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dark-navy: #0a0a1a;
+            --deep-purple: #1a0a2e;
+            --royal-blue: #16213e;
+            --soft-lavender: #d4a5e0;
+            --warm-pink: #ffb6c1;
+            --gentle-blue: #9ec5e8;
+            --cream: #fef9f3;
+            --text-dark: #2d2d3a;
+            --text-medium: #5a5a6e;
+            --text-light: #8a8a9e;
+            --success-green: #4ade80;
+            --bg-light: #f8f9fc;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, var(--dark-navy) 0%, var(--deep-purple) 50%, var(--royal-blue) 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header Section */
+        .report-header {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            padding: 48px 40px;
+            margin-bottom: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(20px);
+            text-align: center;
+            animation: fadeInDown 0.8s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--soft-lavender), var(--warm-pink), var(--gentle-blue));
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+
+            0%,
+            100% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .report-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .report-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 40px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .report-subtitle {
+            font-size: 18px;
+            color: var(--text-medium);
+            margin-bottom: 24px;
+        }
+
+        .session-meta {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-medium);
+        }
+
+        .meta-icon {
+            font-size: 18px;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .report-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideUp 0.8s ease-out both;
+        }
+
+        .report-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .report-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .report-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .report-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .report-card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .report-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 50px rgba(0, 0, 0, 0.18);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--soft-lavender), var(--warm-pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(212, 165, 224, 0.3);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .card-content {
+            margin-bottom: 16px;
+        }
+
+        .emotional-journey {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255, 165, 0, 0.08), rgba(255, 184, 140, 0.08));
+            border-radius: 12px;
+            border-left: 4px solid var(--soft-lavender);
+        }
+
+        .emotion-state {
+            text-align: center;
+            flex: 1;
+        }
+
+        .emotion-emoji {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .emotion-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .emotion-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-top: 4px;
+        }
+
+        .arrow-transition {
+            font-size: 28px;
+            color: var(--soft-lavender);
+        }
+
+        .insight-text {
+            font-family: 'Crimson Pro', serif;
+            font-size: 17px;
+            line-height: 1.6;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+        }
+
+        .insight-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .insight-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            font-size: 15px;
+            color: var(--text-medium);
+        }
+
+        .insight-list li::before {
+            content: '✓';
+            color: var(--success-green);
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* Connection Score */
+        .score-container {
+            text-align: center;
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(212, 165, 224, 0.1), rgba(255, 182, 193, 0.1));
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 16px;
+            position: relative;
+        }
+
+        .score-circle svg {
+            transform: rotate(-90deg);
+        }
+
+        .score-circle-bg {
+            fill: none;
+            stroke: rgba(0, 0, 0, 0.05);
+            stroke-width: 10;
+        }
+
+        .score-circle-progress {
+            fill: none;
+            stroke: url(#scoreGradient);
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 377;
+            stroke-dashoffset: 94.25;
+            animation: drawCircle 2s ease-out forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes drawCircle {
+            from {
+                stroke-dashoffset: 377;
+            }
+
+            to {
+                stroke-dashoffset: 94.25;
+            }
+        }
+
+        .score-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .score-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-medium);
+            margin-bottom: 4px;
+        }
+
+        .score-description {
+            font-family: 'Crimson Pro', serif;
+            font-size: 17px;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        /* Well-being Message */
+        .wellbeing-box {
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(34, 197, 94, 0.1));
+            border-radius: 12px;
+            border-left: 4px solid var(--success-green);
+        }
+
+        .wellbeing-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .wellbeing-text {
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text-dark);
+        }
+
+        /* Action Suggestion */
+        .action-box {
+            padding: 24px;
+            background: linear-gradient(135deg, var(--soft-lavender), var(--warm-pink));
+            border-radius: 16px;
+            color: white;
+            box-shadow: 0 8px 24px rgba(212, 165, 224, 0.3);
+        }
+
+        .action-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-suggestion {
+            font-family: 'Crimson Pro', serif;
+            font-size: 19px;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+
+        /* Full-width cards */
+        .full-width-card {
+            grid-column: 1 / -1;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+            animation: slideUp 0.8s ease-out 0.6s both;
+        }
+
+        .cta-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--soft-lavender), var(--warm-pink));
+            color: white;
+            box-shadow: 0 4px 12px rgba(212, 165, 224, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 165, 224, 0.5);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--soft-lavender);
+            transform: translateY(-2px);
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .report-header {
+                padding: 32px 24px;
+            }
+
+            .report-title {
+                font-size: 32px;
+            }
+
+            .report-card {
+                padding: 24px;
+            }
+
+            .session-meta {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* Stats Badge */
+        .stats-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: rgba(212, 165, 224, 0.15);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--deep-purple);
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="report-header">
+            <div class="report-icon">📊</div>
+            <h1 class="report-title">Your Emotional Connection Report</h1>
+            <p class="report-subtitle">Here's how your conversation created meaningful impact</p>
+
+            <div class="session-meta">
+                <div class="meta-item">
+                    <span class="meta-icon">📅</span>
+                    <span>Today, 3:45 PM</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-icon">⏱️</span>
+                    <span>27 minutes</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-icon">💬</span>
+                    <span>18 messages exchanged</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- 1. Emotional Journey Summary -->
+            <div class="report-card full-width-card">
+                <div class="card-header">
+                    <div class="card-icon">🌱</div>
+                    <h2 class="card-title">Emotional Journey Summary</h2>
+                </div>
+                <div class="card-content">
+                    <div class="emotional-journey">
+                        <div class="emotion-state">
+                            <div class="emotion-emoji">😔</div>
+                            <div class="emotion-label">Started</div>
+                            <div class="emotion-name">Lonely</div>
+                        </div>
+                        <div class="arrow-transition">→</div>
+                        <div class="emotion-state">
+                            <div class="emotion-emoji">😌</div>
+                            <div class="emotion-label">Ended</div>
+                            <div class="emotion-name">Calmer</div>
+                        </div>
+                    </div>
+                </div>
+                <p class="insight-text">
+                    You started this conversation feeling lonely, seeking connection. Through sharing and being heard,
+                    you moved toward a calmer, more grounded emotional state. This shift shows the power of meaningful
+                    dialogue.
+                </p>
+            </div>
+
+            <!-- 2. Communication Insight -->
+            <div class="report-card">
+                <div class="card-header">
+                    <div class="card-icon">💡</div>
+                    <h2 class="card-title">Communication Insight</h2>
+                </div>
+                <div class="card-content">
+                    <div class="stats-badge">
+                        <span>⭐</span>
+                        <span>Strong Communicator</span>
+                    </div>
+                    <p class="insight-text">
+                        You showed emotional openness and thoughtful engagement throughout the conversation.
+                    </p>
+                    <ul class="insight-list">
+                        <li>Asked meaningful questions</li>
+                        <li>Shared personal experiences</li>
+                        <li>Practiced active listening</li>
+                        <li>Expressed gratitude and empathy</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 3. Connection Depth Score -->
+            <div class="report-card">
+                <div class="card-header">
+                    <div class="card-icon">🤝</div>
+                    <h2 class="card-title">Connection Depth Score</h2>
+                </div>
+                <div class="card-content">
+                    <div class="score-container">
+                        <div class="score-circle">
+                            <svg width="140" height="140">
+                                <defs>
+                                    <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#ffa500;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#ffb88c;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <circle class="score-circle-bg" cx="70" cy="70" r="60"></circle>
+                                <circle class="score-circle-progress" cx="70" cy="70" r="60"></circle>
+                            </svg>
+                            <div class="score-number">75%</div>
+                        </div>
+                        <div class="score-label">Connection Quality</div>
+                        <div class="score-description">Strong Emotional Connection</div>
+                    </div>
+                </div>
+                <p class="insight-text" style="text-align: center;">
+                    You established a genuine, trust-based connection. This level of depth typically reduces feelings of
+                    isolation.
+                </p>
+            </div>
+
+            <!-- 4. Well-being Message -->
+            <div class="report-card full-width-card">
+                <div class="card-header">
+                    <div class="card-icon">🌟</div>
+                    <h2 class="card-title">Well-being Impact</h2>
+                </div>
+                <div class="card-content">
+                    <div class="wellbeing-box">
+                        <div class="wellbeing-icon">🧠</div>
+                        <p class="wellbeing-text">
+                            <strong>Research shows:</strong> Meaningful conversations like yours can reduce stress by up
+                            to 25% and significantly decrease feelings of loneliness. By opening up and being
+                            vulnerable, you're actively improving your mental well-being. Social connection is as
+                            important to health as exercise and nutrition.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Small Action Suggestion -->
+            <div class="report-card full-width-card">
+                <div class="card-header">
+                    <div class="card-icon">✨</div>
+                    <h2 class="card-title">Your Next Step</h2>
+                </div>
+                <div class="card-content">
+                    <div class="action-box">
+                        <div class="action-title">
+                            <span>🎯</span>
+                            <span>Small Action for Today</span>
+                        </div>
+                        <p class="action-suggestion">
+                            Reach out to someone you trust today. Send a simple message asking how they're doing, or
+                            share something you're grateful for. Authentic connection creates a ripple effect of
+                            positivity.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        // CTA Section -> Update buttons
+        // Renaming "Save This Report" to "View Past Journeys"
+        <div class="cta-section">
+            <h2 class="cta-title">Continue Your Journey</h2>
+            <div class="cta-buttons">
+                <button class="btn btn-primary" onclick="window.location.href='page6.html'">
+                    Start New Conversation
+                </button>
+                <button class="btn btn-secondary" onclick="window.location.href='history.html'">
+                    View Past Journeys
+                </button>
+                <button class="btn btn-secondary" onclick="window.print()">
+                    Save PDF
+                </button>
+                <button class="btn btn-secondary" onclick="shareReport()">
+                    Share Report
+                </button>
+            </div>
+        </div>
+
+        <p class="footer-note">
+            You're making real progress in your emotional well-being. We're proud of you. 💙
+        </p>
+    </div>
+
+    <script>
+        // ... (Auth check and other existing code) ...
+
+        async function shareReport() {
+            const shareData = {
+                title: 'HeartLink - Emotional Connection Report',
+                text: 'Check out my emotional journey on HeartLink! I just had a meaningful conversation.',
+                url: window.location.href
+            };
+
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                } catch (err) {
+                    console.error('Error sharing:', err);
+                }
+            } else {
+                // Fallback: Copy URL
+                try {
+                    await navigator.clipboard.writeText(window.location.href);
+                    alert('Report link copied to clipboard!');
+                } catch (err) {
+                    alert('Unable to share automatically. Please copy the URL manually.');
+                }
+            }
+        }
+        // Auth check
+        fetch('/api/auth/me')
+            .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+            .then(data => { if (!data.user) window.location.href = '/loginpage.html'; })
+            .catch(() => { window.location.href = '/loginpage.html'; });
+
+        // URL Params
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('sessionId');
+
+        // Fetch Report Data
+        const endpoint = sessionId ? `/api/report/${sessionId}` : '/api/report/latest';
+
+        fetch(endpoint)
+            .then(r => {
+                if (!r.ok) throw new Error('Report not found');
+                return r.json();
+            })
+            .then(data => {
+                // Update UI elements
+                document.querySelector('.session-meta').innerHTML = `
+                    <div class="meta-item"><span class="meta-icon">📅</span><span>${new Date(data.session.date).toLocaleDateString()}</span></div>
+                    <div class="meta-item"><span class="meta-icon">⏱️</span><span>${data.session.durationMinutes} minutes</span></div>
+                    <div class="meta-item"><span class="meta-icon">💬</span><span>${data.session.messagesCount} messages</span></div>
+                `;
+
+                // Emotional Journey
+                const ej = data.emotionalJourney;
+                document.querySelector('.emotional-journey').innerHTML = `
+                     <div class="emotion-state"><div class="emotion-emoji">${ej.startEmoji}</div><div class="emotion-label">Started</div><div class="emotion-name">${ej.startLabel}</div></div>
+                     <div class="arrow-transition">→</div>
+                     <div class="emotion-state"><div class="emotion-emoji">${ej.endEmoji}</div><div class="emotion-label">Ended</div><div class="emotion-name">${ej.endLabel}</div></div>
+                `;
+                document.querySelectorAll('.insight-text')[0].textContent = ej.insight;
+
+                // Communication
+                const comm = data.communication;
+                document.querySelector('.stats-badge').innerHTML = `<span>⭐</span><span>${comm.style}</span>`;
+                const commList = document.querySelector('.insight-list');
+                commList.innerHTML = comm.highlights.map(h => `<li>${h}</li>`).join('');
+                document.querySelectorAll('.insight-text')[1].textContent = `You showed: ${comm.style}`;
+
+                // Connection Score
+                const cq = data.connectionQuality;
+                document.querySelector('.score-number').textContent = `${cq.score}%`;
+                document.querySelector('.score-description').textContent = cq.descriptor;
+                document.querySelectorAll('.insight-text')[2].textContent = cq.impact;
+
+                // Update Progress Circle
+                const circle = document.querySelector('.score-circle-progress');
+                const circumference = 377;
+                const offset = circumference - (cq.score / 100) * circumference;
+                circle.style.strokeDashoffset = offset;
+
+                // Wellbeing & Action
+                document.querySelector('.wellbeing-text').innerHTML = `<strong>Insight:</strong> ${data.wellbeingMessage}`;
+                document.querySelector('.action-suggestion').textContent = data.actionSuggestion;
+
+            })
+            .catch(err => {
+                console.error(err);
+                if (confirm("Report not found or session incomplete. Start a new one?")) {
+                    window.location.href = 'page6.html';
+                }
+            });
+
+        // Particle Network Animation
+
+        // Particle Network Animation
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        });
+        const particles = [];
+        const particleCount = 60;
+        const maxDistance = 150;
+        const particleSpeed = 0.2;
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * particleSpeed;
+                this.vy = (Math.random() - 0.5) * particleSpeed;
+                this.radius = Math.random() * 2 + 1;
+                this.life = Math.random() * 200 + 100;
+                this.maxLife = this.life;
+                this.decaying = false;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                if (!this.decaying && Math.random() < 0.001) this.decaying = true;
+                if (this.decaying) this.life -= 2;
+            }
+            draw() {
+                const opacity = this.life / this.maxLife;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(147, 112, 219, ${opacity * 0.6})`;
+                ctx.fill();
+            }
+            isDead() { return this.life <= 0; }
+        }
+        function initParticles() {
+            particles.length = 0;
+            for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+        }
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < maxDistance) {
+                        const opacity = (1 - distance / maxDistance) * Math.min(particles[i].life / particles[i].maxLife, particles[j].life / particles[j].maxLife);
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(147, 112, 219, ${opacity * 0.2})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update(); particles[i].draw();
+                if (particles[i].isDead()) { particles.splice(i, 1); particles.push(new Particle()); }
+            }
+            connectParticles();
+            requestAnimationFrame(animate);
+        }
+        initParticles();
+        animate();
+
+        // Fetch and display report data
+        async function loadReport() {
+            try {
+                const res = await fetch('/api/report/latest');
+                if (!res.ok) throw new Error('Failed to load report');
+
+                const data = await res.json();
+                const session = data.session;
+
+                // Update Meta
+                const date = new Date(session.endTime || Date.now());
+                document.querySelector('.meta-item:nth-child(1) span:last-child').textContent = date.toLocaleDateString() + ', ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                document.querySelector('.meta-item:nth-child(2) span:last-child').textContent = session.duration + ' minutes';
+                document.querySelector('.meta-item:nth-child(3) span:last-child').textContent = session.messageCount + ' messages exchanged';
+
+                // 1. Emotional Journey
+                const journey = data.emotionalJourney;
+                const journeyContainer = document.querySelector('.emotional-journey');
+                journeyContainer.innerHTML = `
+                    <div class="emotion-state">
+                        <div class="emotion-emoji">${journey.start.emoji}</div>
+                        <div class="emotion-label">Started</div>
+                        <div class="emotion-name">${journey.start.mood}</div>
+                    </div>
+                    <div class="arrow-transition">→</div>
+                    <div class="emotion-state">
+                        <div class="emotion-emoji">${journey.end.emoji}</div>
+                        <div class="emotion-label">Ended</div>
+                        <div class="emotion-name">${journey.end.mood}</div>
+                    </div>
+                `;
+                document.querySelector('.report-card:nth-child(1) .insight-text').textContent = journey.insight;
+
+                // 2. Communication Insight
+                const comm = data.communication;
+                document.querySelector('.stats-badge span:last-child').textContent = comm.style;
+                const commList = document.querySelector('.insight-list');
+                commList.innerHTML = comm.highlights.map(h => `<li>${h}</li>`).join('');
+                document.querySelector('.report-card:nth-child(2) .insight-text').textContent = "You showed emotional openness and thoughtful engagement throughout the conversation.";
+
+                // 3. Connection Score
+                const qual = data.connectionQuality;
+                document.querySelector('.score-number').textContent = qual.score + '%';
+                document.querySelector('.score-description').textContent = qual.descriptor;
+                document.querySelector('.report-card:nth-child(3) .insight-text').textContent = qual.impact;
+
+                // Animate score circle
+                const circle = document.querySelector('.score-circle-progress');
+                const offset = 377 - (377 * (qual.score / 100)); // 377 is circumference for r=60
+                circle.style.strokeDashoffset = offset;
+
+                // 4. Wellbeing
+                document.querySelector('.wellbeing-text').innerHTML = `<strong>Research shows:</strong> ${data.wellbeingMessage}`;
+
+                // 5. Action
+                document.querySelector('.action-suggestion').textContent = data.actionSuggestion;
+
+            } catch (err) {
+                console.error(err);
+                // Fail silently or show default
+            }
+        }
+
+        // Action handlers
+        function handleAction(action) {
+            if (action === 'newConversation') {
+                window.location.href = '/page3.html';
+            } else if (action === 'saveReport') {
+                alert("Report saved to your dashboard!");
+            } else if (action === 'shareProgress') {
+                alert("Sharing options opened!");
+            }
+        }
+
+        loadReport();
+    </script>
+</body>
+
+</html>

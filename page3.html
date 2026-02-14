@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartLink - Check In</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            animation: fadeIn 0.6s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 12px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .title {
+            color: white;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 16px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .question {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .mood-option {
+            background: #f7fafc;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 16px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mood-option::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(102, 126, 234, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .mood-option:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+        }
+
+        .mood-option:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .mood-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            transform: scale(1.05);
+        }
+
+        .mood-emoji {
+            font-size: 36px;
+            display: block;
+            margin-bottom: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .mood-option:hover .mood-emoji {
+            transform: scale(1.2);
+        }
+
+        .mood-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .mood-option.selected .mood-label {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .text-input-container {
+            margin-bottom: 32px;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: 15px;
+            resize: vertical;
+            transition: all 0.3s ease;
+            color: #2d3748;
+            background: #f7fafc;
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .textarea::placeholder {
+            color: #a0aec0;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #a0aec0;
+            margin-top: 8px;
+        }
+
+        .continue-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .continue-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .continue-btn:hover::before {
+            left: 100%;
+        }
+
+        .continue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .continue-btn:active {
+            transform: translateY(0);
+        }
+
+        .continue-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .encouragement {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-style: italic;
+            margin-top: 16px;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 24px;
+            }
+
+            .mood-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .title {
+                font-size: 24px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+            color: #2d3748;
+            opacity: 0;
+            transition: all 0.5s ease;
+            z-index: 1000;
+        }
+
+        .success-message.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">💜</div>
+            <h1 class="title">HeartLink</h1>
+            <p class="subtitle">Take a moment for yourself</p>
+        </div>
+
+        <div class="card fade-in">
+            <h2 class="question">How was your day?</h2>
+            <div class="mood-grid" id="dayMoodGrid">
+                <div class="mood-option" data-mood="happy" data-section="day">
+                    <span class="mood-emoji">😊</span>
+                    <span class="mood-label">Happy</span>
+                </div>
+                <div class="mood-option" data-mood="calm" data-section="day">
+                    <span class="mood-emoji">😐</span>
+                    <span class="mood-label">Calm</span>
+                </div>
+                <div class="mood-option" data-mood="lonely" data-section="day">
+                    <span class="mood-emoji">😔</span>
+                    <span class="mood-label">Lonely</span>
+                </div>
+                <div class="mood-option" data-mood="stressed" data-section="day">
+                    <span class="mood-emoji">😣</span>
+                    <span class="mood-label">Stressed</span>
+                </div>
+                <div class="mood-option" data-mood="overwhelmed" data-section="day">
+                    <span class="mood-emoji">😵</span>
+                    <span class="mood-label">Overwhelmed</span>
+                </div>
+            </div>
+
+            <h2 class="question">How are you feeling right now?</h2>
+            <div class="mood-grid" id="currentMoodGrid">
+                <div class="mood-option" data-mood="happy" data-section="current">
+                    <span class="mood-emoji">😊</span>
+                    <span class="mood-label">Happy</span>
+                </div>
+                <div class="mood-option" data-mood="calm" data-section="current">
+                    <span class="mood-emoji">😐</span>
+                    <span class="mood-label">Calm</span>
+                </div>
+                <div class="mood-option" data-mood="lonely" data-section="current">
+                    <span class="mood-emoji">😔</span>
+                    <span class="mood-label">Lonely</span>
+                </div>
+                <div class="mood-option" data-mood="stressed" data-section="current">
+                    <span class="mood-emoji">😣</span>
+                    <span class="mood-label">Stressed</span>
+                </div>
+                <div class="mood-option" data-mood="overwhelmed" data-section="current">
+                    <span class="mood-emoji">😵</span>
+                    <span class="mood-label">Overwhelmed</span>
+                </div>
+            </div>
+
+            <div class="text-input-container">
+                <h2 class="question">Tell us what's on your mind today</h2>
+                <textarea class="textarea" id="thoughtsInput"
+                    placeholder="Express yourself freely... there's no right or wrong answer. We're here to listen."
+                    maxlength="500"></textarea>
+                <div class="char-count"><span id="charCount">0</span>/500</div>
+            </div>
+
+            <button class="continue-btn" id="continueBtn">Continue</button>
+        </div>
+
+        <p class="encouragement">Your feelings are valid. Thank you for sharing with us. 💙</p>
+    </div>
+
+    <div class="success-message" id="successMessage">
+        ✓ Check-in saved. You're doing great!
+    </div>
+
+    <script>
+        // Particle Network Animation
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        });
+
+        const particles = [];
+        const particleCount = 80;
+        const maxDistance = 150;
+        const particleSpeed = 0.3;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * particleSpeed;
+                this.vy = (Math.random() - 0.5) * particleSpeed;
+                this.radius = Math.random() * 2 + 1;
+                this.life = Math.random() * 200 + 100;
+                this.maxLife = this.life;
+                this.decaying = false;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Bounce off edges
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+                // Random decay
+                if (!this.decaying && Math.random() < 0.002) {
+                    this.decaying = true;
+                }
+
+                if (this.decaying) {
+                    this.life -= 2;
+                }
+            }
+
+            draw() {
+                const opacity = this.life / this.maxLife;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(147, 112, 219, ${opacity * 0.8})`;
+                ctx.fill();
+            }
+
+            isDead() {
+                return this.life <= 0;
+            }
+        }
+
+        function initParticles() {
+            particles.length = 0;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < maxDistance) {
+                        const opacity = (1 - distance / maxDistance) *
+                            Math.min(particles[i].life / particles[i].maxLife,
+                                particles[j].life / particles[j].maxLife);
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(147, 112, 219, ${opacity * 0.3})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Update and draw particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+
+                // Remove dead particles and create new ones
+                if (particles[i].isDead()) {
+                    particles.splice(i, 1);
+                    particles.push(new Particle());
+                }
+            }
+
+            connectParticles();
+            requestAnimationFrame(animate);
+        }
+
+        initParticles();
+        animate();
+    </script>
+
+    <script>
+        // Auth check
+        fetch('/api/auth/me')
+            .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+            .then(data => { if (!data.user) window.location.href = '/loginpage.html'; })
+            .catch(() => { window.location.href = '/loginpage.html'; });
+
+        const state = {
+            dayMood: null,
+            currentMood: null,
+            thoughts: ''
+        };
+
+        // Mood selection handling
+        const moodOptions = document.querySelectorAll('.mood-option');
+
+        moodOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const section = option.dataset.section;
+                const mood = option.dataset.mood;
+
+                document.querySelectorAll(`.mood-option[data-section="${section}"]`).forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+
+                option.classList.add('selected');
+
+                if (section === 'day') {
+                    state.dayMood = mood;
+                } else {
+                    state.currentMood = mood;
+                }
+
+                checkFormValidity();
+            });
+        });
+
+        // Text input handling
+        const thoughtsInput = document.getElementById('thoughtsInput');
+        const charCount = document.getElementById('charCount');
+
+        thoughtsInput.addEventListener('input', (e) => {
+            const length = e.target.value.length;
+            charCount.textContent = length;
+            state.thoughts = e.target.value;
+            checkFormValidity();
+        });
+
+        // Form validation
+        const continueBtn = document.getElementById('continueBtn');
+
+        function checkFormValidity() {
+            const isValid = state.dayMood || state.currentMood;
+            continueBtn.disabled = !isValid;
+        }
+
+        // Continue button handling
+        continueBtn.addEventListener('click', async () => {
+            if (state.dayMood || state.currentMood) {
+                continueBtn.disabled = true;
+                continueBtn.textContent = 'Saving...';
+
+                try {
+                    const res = await fetch('/api/mood', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            dayMood: state.dayMood,
+                            currentMood: state.currentMood,
+                            thoughts: state.thoughts
+                        })
+                    });
+
+                    if (!res.ok) {
+                        const data = await res.json();
+                        alert(data.error || 'Failed to save mood');
+                        continueBtn.disabled = false;
+                        continueBtn.textContent = 'Continue';
+                        return;
+                    }
+
+                    const successMessage = document.getElementById('successMessage');
+                    successMessage.classList.add('show');
+
+                    const moodParam = state.currentMood || state.dayMood;
+                    setTimeout(() => {
+                        window.location.href = `/page4.html?mood=${moodParam}`;
+                    }, 1000);
+                } catch (err) {
+                    alert('Connection error');
+                    continueBtn.disabled = false;
+                    continueBtn.textContent = 'Continue';
+                }
+            }
+        });
+
+        window.addEventListener('load', () => {
+            document.body.style.overflow = 'auto';
+        });
+
+        checkFormValidity();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,37 @@
+[
+    {
+        "step_title": "Choose a Hosting Platform",
+        "step_description": "We recommend **Glitch** or **Render** for Node.js + SQLite apps.",
+        "options": [
+            {
+                "name": "Glitch",
+                "pros": "Easiest for beginners, supports SQLite persistence out of the box.",
+                "cons": "App sleeps after inactivity on free tier.",
+                "link": "https://glitch.com"
+            },
+            {
+                "name": "Render",
+                "pros": "More professional, better performance.",
+                "cons": "Free tier wipes SQLite data on restart (need external DB for persistence).",
+                "link": "https://render.com"
+            }
+        ]
+    },
+    {
+        "step_title": "Prepare Code for Deployment",
+        "step_description": "Ensure your project has a `start` script and ignores unnecessary files.",
+        "actions": [
+            "Check `package.json` for `\"start\": \"node server.js\"` (Done ✅)",
+            "Create `.gitignore` to exclude `node_modules` and `.env`"
+        ]
+    },
+    {
+        "step_title": "Deploy to Glitch (Recommended for Ease)",
+        "step_description": "1. Go to **Glitch.com** and create account.\n2. Click **New Project** -> **Import from GitHub** (if user pushes to GH) OR use Glitch CLI.\n3. Alternatively, copy-paste code manually into a new Glitch project.",
+        "manual_upload": "Since we are local, the easiest way is to use **VS Code Glitch extension** or manual copy-paste for small projects."
+    },
+    {
+        "step_title": "Deploy to Render (Best for Production)",
+        "step_description": "1. Push code to **GitHub**.\n2. Connect GitHub to **Render**.\n3. Create a **Web Service** with build command `npm install` and start command `node server.js`.\n4. Add Environment Variables (`HF_TOKEN`, `SESSION_SECRET`)."
+    }
+]

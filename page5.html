@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartLink - Meaningful Connections</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=DM+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dark-navy: #0a0a1a;
+            --deep-purple: #1a0a2e;
+            --royal-blue: #16213e;
+            --soft-lavender: #d4a5e0;
+            --warm-pink: #ffb6c1;
+            --gentle-blue: #9ec5e8;
+            --cream: #fef9f3;
+            --warm-white: #faf7f2;
+            --text-dark: #2d2d3a;
+            --text-medium: #5a5a6e;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, var(--dark-navy) 0%, var(--deep-purple) 50%, var(--royal-blue) 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 920px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+            display: inline-block;
+            animation: gentle-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes gentle-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.08);
+                opacity: 0.9;
+            }
+        }
+
+        .page-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 44px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.85);
+            max-width: 520px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .intro-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .intro-text {
+            font-family: 'Crimson Pro', serif;
+            font-size: 19px;
+            color: var(--text-dark);
+            text-align: center;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .connections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .user-card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out both;
+        }
+
+        .user-card:nth-child(1) {
+            animation-delay: 0.3s;
+        }
+
+        .user-card:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .user-card:nth-child(3) {
+            animation-delay: 0.5s;
+        }
+
+        .user-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--soft-lavender), var(--warm-pink), var(--gentle-blue));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+        }
+
+        .user-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--soft-lavender), var(--warm-pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 12px rgba(212, 165, 224, 0.3);
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: var(--text-medium);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .mood-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, rgba(212, 165, 224, 0.1), rgba(255, 182, 193, 0.1));
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(212, 165, 224, 0.2);
+        }
+
+        .mood-emoji {
+            font-size: 24px;
+        }
+
+        .mood-text {
+            font-size: 15px;
+            color: var(--text-medium);
+            font-weight: 500;
+        }
+
+        .shared-interest {
+            padding: 16px;
+            background: rgba(158, 197, 232, 0.08);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border-left: 3px solid var(--gentle-blue);
+        }
+
+        .interest-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-medium);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .interest-text {
+            font-size: 15px;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .start-conversation-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--soft-lavender), var(--warm-pink));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(212, 165, 224, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-conversation-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .start-conversation-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .start-conversation-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 165, 224, 0.5);
+        }
+
+        .start-conversation-btn:active {
+            transform: translateY(0);
+        }
+
+        .footer-actions {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .secondary-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--text-dark);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .secondary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+            border-color: rgba(212, 165, 224, 0.5);
+        }
+
+        .footer-note {
+            margin-top: 32px;
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            font-style: italic;
+        }
+
+        /* Match score badge */
+        .match-score {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(74, 222, 128, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .connections-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-title {
+                font-size: 36px;
+            }
+
+            .intro-card {
+                padding: 24px;
+            }
+
+            .user-card {
+                padding: 24px;
+            }
+        }
+
+        /* Loading shimmer effect */
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        .connection-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(74, 222, 128, 0.1);
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #16a34a;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="container">
+        <div class="header">
+            <div class="header-icon">🤝</div>
+            <h1 class="page-title">Meaningful Connections</h1>
+            <p class="page-subtitle">We've found people who share your experiences and interests. These connections are
+                thoughtfully matched to you.</p>
+        </div>
+
+        <div class="intro-card">
+            <p class="intro-text">
+                Each person below is going through similar experiences or shares your interests. Take your time to read
+                their profiles and start a conversation when you feel ready.
+            </p>
+        </div>
+
+        <div class="connections-grid" id="connectionsGrid">
+        </div>
+
+        <div class="footer-actions">
+            <button class="secondary-btn" onclick="refreshMatches()">
+                <span>↻</span>
+                <span>Show Different Matches</span>
+            </button>
+        </div>
+
+        <p class="footer-note">All connections are curated with care. Take your time. 💙</p>
+    </div>
+
+    <script>
+        // Particle Network Animation
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        });
+        const particles = [];
+        const particleCount = 80;
+        const maxDistance = 150;
+        const particleSpeed = 0.3;
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * particleSpeed;
+                this.vy = (Math.random() - 0.5) * particleSpeed;
+                this.radius = Math.random() * 2 + 1;
+                this.life = Math.random() * 200 + 100;
+                this.maxLife = this.life;
+                this.decaying = false;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                if (!this.decaying && Math.random() < 0.002) this.decaying = true;
+                if (this.decaying) this.life -= 2;
+            }
+            draw() {
+                const opacity = this.life / this.maxLife;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(147, 112, 219, ${opacity * 0.8})`;
+                ctx.fill();
+            }
+            isDead() { return this.life <= 0; }
+        }
+        function initParticles() {
+            particles.length = 0;
+            for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+        }
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < maxDistance) {
+                        const opacity = (1 - distance / maxDistance) * Math.min(particles[i].life / particles[i].maxLife, particles[j].life / particles[j].maxLife);
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(147, 112, 219, ${opacity * 0.3})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update(); particles[i].draw();
+                if (particles[i].isDead()) { particles.splice(i, 1); particles.push(new Particle()); }
+            }
+            connectParticles();
+            requestAnimationFrame(animate);
+        }
+        initParticles();
+        animate();
+
+        // Auth check
+        fetch('/api/auth/me')
+            .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+            .then(data => { if (!data.user) window.location.href = '/loginpage.html'; })
+            .catch(() => { window.location.href = '/loginpage.html'; });
+
+        // Load connections from API
+        async function loadConnections() {
+            const grid = document.getElementById('connectionsGrid');
+            grid.innerHTML = '<p style="color: rgba(255,255,255,0.6); text-align: center; padding: 40px; grid-column: 1/-1;">Loading connections...</p>';
+            try {
+                const res = await fetch('/api/connections');
+                if (!res.ok) throw new Error();
+                const connections = await res.json();
+                grid.innerHTML = '';
+                connections.forEach((conn, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'user-card';
+                    card.style.animationDelay = `${index * 0.15}s`;
+                    const avatarContent = conn.avatar.startsWith('http')
+                        ? `<img src="${conn.avatar}" alt="${conn.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                        : conn.avatar;
+
+                    card.innerHTML = `
+                        <div class="match-score">${conn.matchScore}% match</div>
+                        <div class="card-header">
+                            <div class="avatar" style="${conn.avatar.startsWith('http') ? 'padding:0;overflow:hidden;' : ''}">${avatarContent}</div>
+                            <div class="user-info">
+                                <div class="user-name">${conn.name}</div>
+                                <div class="user-status">
+                                    <span class="status-dot"></span>
+                                    <span>${conn.status === 'online' ? 'Online now' : 'Away'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mood-display">
+                            <span class="mood-emoji">${conn.moodEmoji}</span>
+                            <span class="mood-text">${conn.moodText}</span>
+                        </div>
+                        <div class="shared-interest">
+                            <div class="interest-label">You both share</div>
+                            <div class="interest-text">
+                                <span>${conn.sharedInterest}</span>
+                                <span>${conn.sharedInterestEmoji}</span>
+                            </div>
+                        </div>
+                        <button class="start-conversation-btn" onclick="startConversation(${conn.id}, '${conn.name.replace(/'/g, "\\'")}')">
+                            Start Conversation
+                        </button>
+                        <div class="connection-badge">
+                            <span>✓</span>
+                            <span>Safe & Verified</span>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (err) {
+                grid.innerHTML = '<p style="color: rgba(255,255,255,0.6); text-align: center; padding: 40px; grid-column: 1/-1;">Failed to load. Please refresh.</p>';
+            }
+        }
+
+        function startConversation(partnerId, partnerName) {
+            event.target.innerHTML = '<span style="opacity: 0.8;">Connecting...</span>';
+            setTimeout(() => {
+                window.location.href = `/page6.html?partner=${partnerId}&name=${encodeURIComponent(partnerName)}`;
+            }, 600);
+        }
+
+        function refreshMatches() {
+            const cards = document.querySelectorAll('.user-card');
+            cards.forEach(card => { card.style.opacity = '0.5'; card.style.transform = 'scale(0.95)'; });
+            setTimeout(() => loadConnections(), 400);
+        }
+
+        loadConnections();
+    </script>
+</body>
+
+</html>

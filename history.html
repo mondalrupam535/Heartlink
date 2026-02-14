@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartLink - Your Journey</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=DM+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --dark-navy: #0a0a1a;
+            --deep-purple: #1a0a2e;
+            --royal-blue: #16213e;
+            --soft-lavender: #d4a5e0;
+            --warm-pink: #ffb6c1;
+            --gentle-blue: #9ec5e8;
+            --text-dark: #2d2d3a;
+            --text-medium: #5a5a6e;
+            --bg-light: #f8f9fc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, var(--dark-navy) 0%, var(--deep-purple) 50%, var(--royal-blue) 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            opacity: 0.8;
+            font-size: 16px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .session-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.2s, background 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .session-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .session-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .date {
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .partner {
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .stat-badge {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.7;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .back-btn:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="page8.html" class="back-btn">← Back to Dashboard</a>
+
+        <header class="header">
+            <h1 class="title">Your Journey</h1>
+            <p class="subtitle">A history of your meaningful connections</p>
+        </header>
+
+        <div class="history-list" id="historyList">
+            <div class="empty-state">Loading your journey...</div>
+        </div>
+    </div>
+
+    <script>
+        // Formatter
+        const formatDate = (dateStr) => {
+            return new Date(dateStr).toLocaleDateString('en-US', {
+                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+        };
+
+        const moodEmojis = {
+            happy: '😊', calm: '😌', lonely: '😔', stressed: '😣', overwhelmed: '😵', unknown: '😐'
+        };
+
+        // Fetch History
+        fetch('/api/report/history')
+            .then(r => r.json())
+            .then(sessions => {
+                const list = document.getElementById('historyList');
+                if (sessions.length === 0) {
+                    list.innerHTML = '<div class="empty-state">No sessions yet. Start a conversation to see your progress!</div>';
+                    return;
+                }
+
+                list.innerHTML = sessions.map(session => `
+                    <a href="page8.html?sessionId=${session.id}" class="session-card">
+                        <div class="session-info">
+                            <span class="partner">Chat with ${session.partner_name || 'Partner'}</span>
+                            <span class="date">${formatDate(session.start_time)}</span>
+                        </div>
+                        <div class="stats">
+                            <div class="stat-badge">
+                                <span>Mood:</span>
+                                <span>${moodEmojis[session.end_mood] || session.end_mood}</span>
+                            </div>
+                            <div class="stat-badge">
+                                <span>Score:</span>
+                                <span>${session.connection_score || 0}%</span>
+                            </div>
+                            <div style="font-size: 20px;">›</div>
+                        </div>
+                    </a>
+                `).join('');
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('historyList').innerHTML = '<div class="empty-state">Failed to load history.</div>';
+            });
+    </script>
+</body>
+
+</html>
